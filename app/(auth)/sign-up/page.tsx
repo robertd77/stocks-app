@@ -1,14 +1,18 @@
-'use client'
+'use client';
 import {CountrySelectField} from '@/components/forms/CountrySelectField';
 import FooterLink from '@/components/forms/FooterLink';
 import InputField from '@/components/forms/InputField';
 import SelectField from '@/components/forms/SelectField';
 import { Button } from '@/components/ui/button';
+import { signUpWithEmail } from '@/lib/actions/auth.actions';
 import { INVESTMENT_GOALS, PREFERRED_INDUSTRIES, RISK_TOLERANCE_OPTIONS } from '@/lib/constants';
+import { useRouter } from 'next/navigation';
 import React from 'react'
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 const SignUp = () => {
+  const router = useRouter()  
   const {
         register,
         handleSubmit,
@@ -27,12 +31,18 @@ const SignUp = () => {
         mode: 'onBlur'
     }, );
 
-    const onSubmit = async (data: SignInFormData) => {
+    const onSubmit = async (data: SignUpFormData) => {
+        console.log('submitting');
         try {
-            console.log(data);
+            const result = await signUpWithEmail(data);
+            if(result.success) router.push('/');
         } catch (error) {
             console.error(error);
-        }
+            toast.error('Sign up failed', {
+                description: error instanceof Error ? error.message : 'Failed to create an account.'
+        })
+    }
+        
     }
   
   return (
@@ -53,7 +63,13 @@ const SignUp = () => {
                 placeholder="johndoe@email.com"
                 register={register}
                 error={errors.email}
-                validation={{ required: 'Valid email address is required', pattern: /^\w+@\w+\.\w+$/, }}
+                validation={{
+                    required: 'Email is required',
+                    pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: 'Invalid email address'
+  }
+}}
             />
             <InputField 
                 name="password"
