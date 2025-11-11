@@ -32,7 +32,6 @@ const SignUp = () => {
     }, );
 
     const onSubmit = async (data: SignUpFormData) => {
-        console.log('submitting');
         try {
             const result = await signUpWithEmail(data);
             if(result.success) router.push('/');
