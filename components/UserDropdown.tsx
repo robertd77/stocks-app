@@ -64,7 +64,7 @@ const UserDropdown = ({ user, initialStocks }: { user: User, initialStocks: Stoc
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="hidden sm:block bg-gray-600"/>
                 <nav className="sm:hidden">
-                    <NavItems initialStocks={initialStocks}/>
+                    <NavItems user={user} initialStocks={initialStocks}/>
                 </nav>
         </DropdownMenuContent>
     </DropdownMenu>

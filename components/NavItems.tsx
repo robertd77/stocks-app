@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import React from 'react'
 import SearchCommand from './SearchCommand';
 
-const NavItems = ({initialStocks}: { initialStocks: StockWithWatchlistStatus[]}) => {
+const NavItems = ({user,initialStocks}: { user: User, initialStocks: StockWithWatchlistStatus[]}) => {
     const pathname = usePathname()
 
     const isActive = (path: string) => {
@@ -23,6 +23,7 @@ const NavItems = ({initialStocks}: { initialStocks: StockWithWatchlistStatus[]})
                             renderAs="text"
                             label="Search"
                             initialStocks={initialStocks}
+                            user={user}
                         />
                     </li>
                 )

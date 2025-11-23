@@ -1,21 +1,24 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { use, useEffect, useState } from "react"
 import { CommandDialog, CommandEmpty, CommandInput, CommandList } from "@/components/ui/command"
 import {Button} from "@/components/ui/button";
 import {Loader2,  TrendingUp} from "lucide-react";
 import Link from "next/link";
 import {searchStocks} from "@/lib/actions/finnhub.actions";
 import {useDebounce} from "@/hooks/useDebounce";
+import Image from "next/image";
 
-export default function SearchCommand({ renderAs = 'button', label = 'Add stock', initialStocks }: SearchCommandProps) {
+export default function SearchCommand({ renderAs = 'button', label = 'Add stock', initialStocks, user }: SearchCommandProps, ) {
   const [open, setOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const [loading, setLoading] = useState(false)
   const [stocks, setStocks] = useState<StockWithWatchlistStatus[]>(initialStocks);
+  const [watchlist, setWatchlist] = useState<Stock[]>([]);
 
   const isSearchMode = !!searchTerm.trim();
   const displayStocks = isSearchMode ? stocks : stocks?.slice(0, 10);
+
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -99,7 +102,15 @@ export default function SearchCommand({ renderAs = 'button', label = 'Add stock'
                           {stock.symbol} | {stock.exchange } | {stock.type}
                         </div>
                       </div>
-                    {/*<Star />*/}
+                     <button>
+            {stock.isInWatchlist ? (
+              
+              <Image src="/assets/icons/yellowstar.svg" alt="Star" width={20} height={20} className="w-5 h-5"/>
+            ) : (
+              
+              <Image src="/assets/icons/star.svg" alt="Star" width={20} height={20} className="w-5 h-5" />
+            )}
+          </button>
                     </Link>
                   </li>
               ))}
