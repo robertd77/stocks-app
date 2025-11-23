@@ -107,8 +107,8 @@ declare global {
         symbol: string;
         company: string;
         isInWatchlist: boolean;
-        showTrashIcon?: boolean;
         type?: 'button' | 'icon';
+        label?: string;
         onWatchlistChange?: (symbol: string, isAdded: boolean) => void;
     };
 

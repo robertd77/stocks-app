@@ -10,18 +10,26 @@ const WatchlistButton = ({
   symbol,
   company,
   isInWatchlist,
-  showTrashIcon = false,
   type = "button",
+  label,
   onWatchlistChange,
   user,
-}: WatchlistButtonProps & { user?: { id?: string } }) => {
+}: WatchlistButtonProps & { user?: { id?: string }; label?: string }) => {
   const [added, setAdded] = useState<boolean>(!!isInWatchlist);
   const [processing, setProcessing] = useState(false);
 
-  const label = useMemo(() => {
+  const defaultLabel = useMemo(() => {
     if (type === "icon") return added ? "" : "";
     return added ? "Remove from Watchlist" : "Add to Watchlist";
   }, [added, type]);
+
+  const capitalize = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : s);
+
+  // If a short single-word label like 'remove' or 'add' is provided, treat it as compact mode
+  // and toggle the word based on `added` state. Otherwise use the full label/defaultLabel.
+  const isSingleWordCompact = typeof label === 'string' && /^[A-Za-z]+$/.test(label);
+  const displayLabelRaw = isSingleWordCompact ? (added ? 'Remove' : 'Add') : (label ?? defaultLabel);
+  const displayLabel = capitalize(displayLabelRaw);
 
   const handleClick = async () => {
     // optimistic update
@@ -57,6 +65,8 @@ const WatchlistButton = ({
     }
   };
 
+  // No compact icon-only variant anymore; use `label` for short mobile labels.
+
   if (type === "icon") {
     return (
       <button
@@ -87,24 +97,13 @@ const WatchlistButton = ({
 
   return (
     <button
-      className={`watchlist-btn ${added ? "watchlist-remove" : ""}`}
+      className={`watchlist-btn ${added ? "watchlist-remove" : ""} text-sm px-3 py-1 inline-flex items-center justify-center gap-2`}
       onClick={handleClick}
       disabled={processing}
       aria-busy={processing}
     >
-      {showTrashIcon && added ? (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={1.5}
-          stroke="currentColor"
-          className="w-5 h-5 mr-2"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M6 7h12M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m-7 4v6m4-6v6m4-6v6" />
-        </svg>
-      ) : null}
-      <span>{label}</span>
+      {/* No trash icon; label-only button for both desktop and mobile (short label passed for mobile) */}
+      <span className="capitalize">{displayLabel}</span>
     </button>
   );
 };

@@ -30,6 +30,7 @@ export async function getMarketDataForSymbols(symbols: string[]): Promise<Record
   percentChange: number | null;
   peRatio: number | null;
   marketCap: number | null;
+  companyName: string | null;
 }>> {
   const token = process.env.FINNHUB_API_KEY ?? NEXT_PUBLIC_FINNHUB_API_KEY;
   if (!token) {
@@ -40,7 +41,7 @@ export async function getMarketDataForSymbols(symbols: string[]): Promise<Record
   const uniq = Array.from(new Set((symbols || []).map((s) => String(s || '').trim().toUpperCase()))).filter(Boolean);
   if (uniq.length === 0) return {};
 
-  const results: Record<string, { currentPrice: number | null; change: number | null; percentChange: number | null; peRatio: number | null; marketCap: number | null }> = {};
+  const results: Record<string, { currentPrice: number | null; change: number | null; percentChange: number | null; peRatio: number | null; marketCap: number | null; companyName: string | null }> = {};
 
   await Promise.all(
     uniq.map(async (sym) => {
@@ -77,6 +78,7 @@ export async function getMarketDataForSymbols(symbols: string[]): Promise<Record
         }
         // Fallback to profile or null
         const marketCap = profile?.marketCapitalization ?? null;
+        const companyName = profile?.name ?? profile?.ticker ?? null;
 
         results[sym] = {
           currentPrice: typeof currentPrice === 'number' ? currentPrice : null,
@@ -84,10 +86,11 @@ export async function getMarketDataForSymbols(symbols: string[]): Promise<Record
           percentChange: typeof percentChange === 'number' ? percentChange : null,
           peRatio: typeof pe === 'number' ? pe : null,
           marketCap: typeof marketCap === 'number' ? marketCap : null,
+          companyName: typeof companyName === 'string' ? companyName : null,
         };
       } catch (err) {
         console.error('getMarketDataForSymbols error for', sym, err);
-        results[sym] = { currentPrice: null, change: null, percentChange: null, peRatio: null, marketCap: null };
+        results[sym] = { currentPrice: null, change: null, percentChange: null, peRatio: null, marketCap: null, companyName: null };
       }
     })
   );

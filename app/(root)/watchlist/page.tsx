@@ -6,6 +6,7 @@ import { connectToDatabase } from '@/database/mongoose';
 import { Watchlist as WatchlistModel } from '@/database/models/watchlist.model';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import WatchlistButton from '@/components/WatchlistButton';
+import Link from 'next/link';
 import { getMarketDataForSymbols } from '@/lib/actions/finnhub.actions';
 
 type WatchlistItem = {
@@ -64,18 +65,18 @@ export default async function WatchlistPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Symbol</TableHead>
+              <TableHead className="hidden sm:table-cell">Symbol</TableHead>
               <TableHead>Company</TableHead>
               <TableHead>Price</TableHead>
               <TableHead>Daily Change</TableHead>
-              <TableHead>P/E</TableHead>
-              <TableHead>Market Cap</TableHead>
-              <TableHead>Actions</TableHead>
+              <TableHead className="hidden sm:table-cell">P/E</TableHead>
+              <TableHead className="hidden sm:table-cell">Market Cap</TableHead>
+              <TableHead className="w-24">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {watchlist.map((item) => {
-              const md = marketData[item.symbol] || { currentPrice: null, change: null, percentChange: null, peRatio: null, marketCap: null };
+              const md = marketData[item.symbol] || { currentPrice: null, change: null, percentChange: null, peRatio: null, marketCap: null, companyName: null };
               const changeValue = md.percentChange ?? md.change ?? 0;
               const changeClass = md.percentChange == null && md.change == null
                 ? 'text-gray-400'
@@ -83,21 +84,43 @@ export default async function WatchlistPage() {
 
               return (
                 <TableRow key={item.symbol}>
-                  <TableCell className="font-medium">{item.symbol}</TableCell>
-                  <TableCell>{item.company}</TableCell>
+                    <TableCell className="hidden sm:table-cell font-medium">
+                      <Link href={`/stocks/${item.symbol}`} className="block w-full">
+                        {item.symbol}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="max-w-[260px] truncate">
+                      <Link href={`/stocks/${item.symbol}`} className="block w-full text-sm text-gray-400 truncate">
+                        {item.company && item.company.toUpperCase() !== item.symbol.toUpperCase()
+                          ? item.company
+                          : (md.companyName ? md.companyName : '-')}
+                      </Link>
+                    </TableCell>
                   <TableCell>{formatPrice(md.currentPrice)}</TableCell>
                   <TableCell className={changeClass}>{formatChange(md.change, md.percentChange)}</TableCell>
-                  <TableCell>{md.peRatio !== null ? md.peRatio.toFixed(2) : '-'}</TableCell>
-                  <TableCell>{formatNumberShort(md.marketCap)}</TableCell>
+                  <TableCell className="hidden sm:table-cell">{md.peRatio !== null ? md.peRatio.toFixed(2) : '-'}</TableCell>
+                  <TableCell className="hidden sm:table-cell">{formatNumberShort(md.marketCap)}</TableCell>
                   <TableCell>
                     <div className="flex justify-center">
-                      <WatchlistButton
-                        symbol={item.symbol}
-                        company={item.company}
-                        isInWatchlist={true}
-                        showTrashIcon={false}
-                        user={{ id: userId }}
-                      />
+                      {/* Desktop: text button */}
+                      <div className="hidden sm:block">
+                        <WatchlistButton
+                          symbol={item.symbol}
+                          company={item.company}
+                          isInWatchlist={true}
+                          user={{ id: userId }}
+                        />
+                      </div>
+                      {/* Mobile: compact text label ('remove'/'add') */}
+                      <div className="block sm:hidden">
+                        <WatchlistButton
+                          symbol={item.symbol}
+                          company={item.company}
+                          isInWatchlist={true}
+                          label={"remove"}
+                          user={{ id: userId }}
+                        />
+                      </div>
                     </div>
                   </TableCell>
                 </TableRow>
