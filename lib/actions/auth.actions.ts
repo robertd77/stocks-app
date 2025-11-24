@@ -31,11 +31,14 @@ export const signUpWithEmail = async ({ email, password, fullName, country, inve
 export const signInWithEmail = async ({ email, password }: SignInFormData) => {
     try {
         const response = await auth.api.signInEmail({ body: { email, password } })
-
         return { success: true, data: response }
     } catch (e) {
         console.log('Sign in failed', e)
-        return { success: false, error: 'Sign in failed' }
+        // Attempt to extract an HTTP status code from the thrown error
+        const err: any = e;
+        const status = err?.status || err?.statusCode || err?.response?.status || err?.response?.statusCode || err?.data?.status;
+        const message = err?.message || (err?.response && err.response?.message) || 'Sign in failed';
+        return { success: false, error: message, status };
     }
 }
 

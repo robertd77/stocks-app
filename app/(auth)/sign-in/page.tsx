@@ -23,17 +23,29 @@ const SignIn = () => {
           mode: 'onBlur'
       }, );
   
-      const onSubmit = async (data: SignInFormData) => {
-          try {
-              const result = await signInWithEmail(data);
-              if(result.success) router.push('/');
-          } catch (error) {
-              console.error(error);
-            toast.error('Sign in failed', {
-                description: error instanceof Error ? error.message : 'Failed to sign in.'
-        })
-          }
-      }
+            const onSubmit = async (data: SignInFormData) => {
+                    try {
+                            const result = await signInWithEmail(data);
+                            if (result.success) {
+                                router.push('/');
+                            } else {
+                                // show a specific message for 401 responses (incorrect credentials)
+                                const isAuthError = result.status === 401;
+                                const message = isAuthError
+                                    ? 'Username or password incorrect.'
+                                    : (typeof result.error === 'string' ? result.error : 'An unknown error has occurred.');
+
+                                toast.error(isAuthError ? 'Sign in failed' : 'Sign in failed', {
+                                    description: message,
+                                });
+                            }
+                    } catch (error) {
+                            console.error(error);
+                            toast.error('Sign in failed', {
+                                description: error instanceof Error ? error.message : 'Failed to sign in.'
+                            });
+                    }
+            }
 
   return (
      <>
@@ -57,10 +69,10 @@ const SignIn = () => {
                 name="password"
                 label="Password"
                 type="password"
-                placeholder="Enter a strong password"
+                placeholder="Enter your password"
                 register={register}
                 error={errors.password}
-                validation={{ required: 'Password is required', minLength: 8 }}
+                validation={{ required: 'Password is required'}}
             />
             <Button type="submit" disabled={isSubmitting} className="yellow-btn w-full mt-5">
                     {isSubmitting ? 'Signing In' : 'Sign In'}

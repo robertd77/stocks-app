@@ -13,10 +13,12 @@ import { Toaster as Sonner, type ToasterProps } from "sonner"
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme()
 
-  return (
+    return (
     <Sonner
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
+      // enable richColors so toasts use the --error/--success color variables
+      richColors={true}
       icons={{
         success: <CircleCheckIcon className="size-4" />,
         info: <InfoIcon className="size-4" />,
@@ -30,6 +32,10 @@ const Toaster = ({ ...props }: ToasterProps) => {
           "--normal-text": "var(--popover-foreground)",
           "--normal-border": "var(--border)",
           "--border-radius": "var(--radius)",
+          // make error toasts have a red background and white text
+          "--error-bg": "#ef4444",
+          "--error-border": "#b91c1c",
+          "--error-text": "#ffffff",
         } as React.CSSProperties
       }
       {...props}
